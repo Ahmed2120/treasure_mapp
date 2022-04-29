@@ -64,11 +64,11 @@ class PlaceDialog {
             ),
             ElevatedButton(
                 child: const Text('Ok'),
-                onPressed: () {
+                onPressed: () async{
                   place.name = txtName.text;
                   place.lat = double.tryParse(txtLat.text)!;
                   place.lon = double.tryParse(txtLon.text)!;
-                  helper.insertPlace(place);
+                  final placeId = await helper.insertPlace(place);
                   final pos = Position(
                       longitude: place.lon,
                       latitude: place.lat,
@@ -78,7 +78,7 @@ class PlaceDialog {
                       heading: 0,
                       speed: 0,
                       speedAccuracy: 0);
-                  Provider.of<Controller>(context, listen: false).addMarker(pos, place.id.toString(), place.name);
+                  // Provider.of<Controller>(context, listen: false).addMarker(pos, placeId.toString(), place.name);
                   Provider.of<Controller>(context, listen: false).getData();
                   Navigator.pop(context);
                 })
