@@ -45,6 +45,8 @@ class _MainMapState extends State<MainMap> {
   CameraPosition position =
       const CameraPosition(target: LatLng(41.9028, 12.4964), zoom: 12);
 
+  bool loader = false;
+
   //
   // Future _getCurrentPosition() async {
   //   bool isGeolocationAvailable = await Geolocator.isLocationServiceEnabled();
@@ -116,9 +118,16 @@ class _MainMapState extends State<MainMap> {
   @override
   void initState() {
     helper = DbHelper();
+    setState(() {
+      loader = true;
+    });
     Provider.of<Controller>(context, listen: false).getPosition().then((pos) {
       Provider.of<Controller>(context, listen: false).addMarker(pos, 'currpos', 'you are here');
       position = CameraPosition(target: LatLng(pos.latitude, pos.longitude), zoom: 12);
+      setState(() {
+        loader = false;
+      });
+      print('${position}');
     }).catchError((error) {
       print(error.toString());
     });
@@ -139,7 +148,7 @@ class _MainMapState extends State<MainMap> {
               icon: const Icon(Icons.list))
         ],
       ),
-      body: Container(
+      body: loader ? Center(child: CircularProgressIndicator()) : Container(
         child: GoogleMap(
           initialCameraPosition: position,
           markers: Set<Marker>.of(Provider.of<Controller>(context).markers),
@@ -152,10 +161,10 @@ class _MainMapState extends State<MainMap> {
               .indexWhere((p) => p.markerId == const MarkerId('currpos'));
           Place place;
           if (here == -1) {
-            place = Place(0, 'name', 0, 0, 'image');
+            place = Place('name', 0, 0, 'image');
           } else {
             LatLng pos = Provider.of<Controller>(context, listen: false).markers[here].position;
-            place = Place(0, '', pos.latitude, pos.longitude, '');
+            place = Place('', pos.latitude, pos.longitude, '');
           }
           PlaceDialog dialog = PlaceDialog(place, true);
           showDialog(

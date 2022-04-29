@@ -37,14 +37,17 @@ class _PlaceListState extends State<PlaceList> {
       itemCount: helper.places.length,
       itemBuilder: (context, index) {
         return Dismissible(
-          key: Key(helper.places[index].name),
+          key: Key(helper.places[index].id.toString()),
           onDismissed: (direction){
             String strName = helper.places[index].name;
+            Provider.of<Controller>(context, listen: false).deleteMarker(helper.places[index].id!);
             helper.deletePlace(helper.places[index]);
-            Provider.of<Controller>(context, listen: false).deleteMarker(helper.places[index].id);
+
             setState(() {
               helper.places.removeAt(index);
             });
+            Provider.of<Controller>(context, listen: false).getData();
+            ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
           },
           child: ListTile(

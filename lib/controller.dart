@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -70,6 +72,7 @@ class Controller with ChangeNotifier{
 
   Future getData() async {
     await helper.openDb();
+    markers.removeWhere((element) => element.markerId != MarkerId('currpos'));
     List _places = await helper.getPlaces();
     for (Place p in _places) {
       final pos = Position(
@@ -83,12 +86,16 @@ class Controller with ChangeNotifier{
           speedAccuracy: 0);
       addMarker(pos, p.id.toString(), p.name);
     }
+    for(var i =0; i<markers.length; i++){
+    print('markers----------------${markers[i].markerId}:');}
     notifyListeners();
   }
 
   void deleteMarker(int id){
    int mark = markers.indexWhere((element) => element.markerId == MarkerId(id.toString()));
    markers.removeAt(mark);
+   print('deleted----------------$id:');
+   print('deleted----------------$markers:');
    notifyListeners();
   }
 }

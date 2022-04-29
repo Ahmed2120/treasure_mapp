@@ -18,7 +18,7 @@ class DbHelper {
     db = await openDatabase(join(await getDatabasesPath(), 'mapp.db'),
         onCreate: (database, version) {
       database.execute(
-          'CREATE TABLE places (id INTEGER PRIMARY KEY, name TEXT, lat DOUBLE, lon DOUBLE, image TEXT)');
+          'CREATE TABLE places (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat DOUBLE, lon DOUBLE, image TEXT)');
     }, version: version);
     return db;
   }
@@ -40,14 +40,13 @@ class DbHelper {
   Future<List<Place>> getPlaces() async {
     final List<Map<String, dynamic>> maps = await db.query('places');
     places = List.generate(maps.length, (index) {
-      return Place(
-        maps[index]['id'],
-        maps[index]['name'],
-        maps[index]['lat'],
-        maps[index]['lon'],
-        maps[index]['image'],
+      print('places id: ${maps[index]}');
+      return Place.fromJson(
+        maps[index]
       );
     });
+    for(var i =0; i<places.length; i++){
+      print('places----------------${places[i].id}:');}
     return places;
   }
 
