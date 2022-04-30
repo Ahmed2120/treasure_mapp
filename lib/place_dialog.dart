@@ -12,6 +12,7 @@ class PlaceDialog {
   final txtName = TextEditingController();
   final txtLat = TextEditingController();
   final txtLon = TextEditingController();
+  String imgCaptured = '';
 
   final bool isNew;
   final Place place;
@@ -40,35 +41,35 @@ class PlaceDialog {
               controller: txtLon,
               decoration: const InputDecoration(hintText: 'Longitude'),
             ),
-            (place.image != '')
-                ? Container(child: Image.file(File(place.image)))
-                : Container(),
+            !isNew
+                ? (place.image != '')
+                    ? Container(child: Image.file(File(place.image)))
+                    : Container()
+                : Provider.of<Controller>(context).imagePath != null
+                    ? Container(
+                        child: Image.file(
+                            File(Provider.of<Controller>(context).imagePath!)))
+                    : Container(),
             IconButton(
               icon: const Icon(Icons.camera_front),
-              onPressed: () {
-                if (isNew) {
-                  helper.insertPlace(place).then((data) {
-                    place.id = data;
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CameraScreen(place)));
-                  });
-                } else {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CameraScreen(place)));
-                }
+              onPressed: () async {
+                final path = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CameraScreen(place)));
+                imgCaptured = path;
               },
             ),
             ElevatedButton(
                 child: const Text('Ok'),
-                onPressed: () async{
+                onPressed: () async {
                   place.name = txtName.text;
                   place.lat = double.tryParse(txtLat.text)!;
                   place.lon = double.tryParse(txtLon.text)!;
-                  final placeId = await helper.insertPlace(place);
+                  place.image = imgCaptured;
+                  isNew
+                      ? await helper.insertPlace(place)
+                      : await helper.update(place);
                   final pos = Position(
                       longitude: place.lon,
                       latitude: place.lat,
@@ -79,6 +80,7 @@ class PlaceDialog {
                       speed: 0,
                       speedAccuracy: 0);
                   // Provider.of<Controller>(context, listen: false).addMarker(pos, placeId.toString(), place.name);
+                  Provider.of<Controller>(context, listen: false).setImgToNull();
                   Provider.of<Controller>(context, listen: false).getData();
                   Navigator.pop(context);
                 })

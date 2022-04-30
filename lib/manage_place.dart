@@ -33,35 +33,37 @@ class _PlaceListState extends State<PlaceList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: helper.places.length,
-      itemBuilder: (context, index) {
-        return Dismissible(
-          key: Key(helper.places[index].id.toString()),
-          onDismissed: (direction){
-            String strName = helper.places[index].name;
-            Provider.of<Controller>(context, listen: false).deleteMarker(helper.places[index].id!);
-            helper.deletePlace(helper.places[index]);
+    return Consumer<Controller>(
+      builder: (context, controller, _)=> ListView.builder(
+        itemCount: controller.places.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: Key(controller.places[index].id.toString()),
+            onDismissed: (direction){
+              String strName = controller.places[index].name;
+              Provider.of<Controller>(context, listen: false).deleteMarker(controller.places[index].id!);
+              helper.deletePlace(controller.places[index]);
 
-            setState(() {
-              helper.places.removeAt(index);
-            });
-            Provider.of<Controller>(context, listen: false).getData();
-            ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
-          },
-          child: ListTile(
-            title: Text(helper.places[index].name),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: (){
-                PlaceDialog dialog = PlaceDialog(helper.places[index], false);
-                showDialog(context: context, builder: (context) => dialog.buildDialog(context));
-              },
+              setState(() {
+                controller.places.removeAt(index);
+              });
+              Provider.of<Controller>(context, listen: false).getData();
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
+            },
+            child: ListTile(
+              title: Text(controller.places[index].name),
+              trailing: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: (){
+                  PlaceDialog dialog = PlaceDialog(controller.places[index], false);
+                  showDialog(context: context, builder: (context) => dialog.buildDialog(context));
+                },
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
