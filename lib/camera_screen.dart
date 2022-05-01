@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:treasure_mapp/controller.dart';
 import 'package:treasure_mapp/picture_screen.dart';
 import 'place.dart';
 
@@ -68,7 +70,8 @@ class _CameraScreenState extends State<CameraScreen> {
             onPressed: ()async{
               final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
               (await _controller.takePicture()).saveTo(path);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> PictureScreen(path, widget.place)));
+              Provider.of<Controller>(context, listen: false).setImg(path);
+              Navigator.pop(context, path);
             },
             icon: const Icon(Icons.camera),
           )
@@ -78,16 +81,16 @@ class _CameraScreenState extends State<CameraScreen> {
         children: [
           cameraPreview,
           Positioned(
-              child: IconButton(
-                onPressed: ()async{
-                  final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
-                  (await _controller.takePicture()).saveTo(path);
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> PictureScreen(path, widget.place)));
-                },
-                icon: const Icon(Icons.camera, color: Colors.white, size: 50,),
-              ),
-              bottom: 100,
-              left: 100,
+            child: IconButton(
+              onPressed: ()async{
+                final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
+                (await _controller.takePicture()).saveTo(path);
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> PictureScreen(path, widget.place)));
+              },
+              icon: const Icon(Icons.camera, color: Colors.white, size: 50,),
+            ),
+            bottom: 100,
+            left: 100,
           )
         ],
       ),

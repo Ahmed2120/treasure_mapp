@@ -56,6 +56,10 @@ class DbHelper {
     return id;
   }
 
+  Future update(Place place) async{
+    await db.update('places', place.toMap(), where: 'id = ?', whereArgs: [place.id]);
+  }
+
   Future deletePlace(Place place) async {
     int id = await db.delete('places', where: "id = ?", whereArgs: [place.id],
         );

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'controller.dart';
@@ -33,35 +35,78 @@ class _PlaceListState extends State<PlaceList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: helper.places.length,
-      itemBuilder: (context, index) {
-        return Dismissible(
-          key: Key(helper.places[index].id.toString()),
-          onDismissed: (direction){
-            String strName = helper.places[index].name;
-            Provider.of<Controller>(context, listen: false).deleteMarker(helper.places[index].id!);
-            helper.deletePlace(helper.places[index]);
-
-            setState(() {
-              helper.places.removeAt(index);
-            });
-            Provider.of<Controller>(context, listen: false).getData();
-            ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
-          },
-          child: ListTile(
-            title: Text(helper.places[index].name),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: (){
-                PlaceDialog dialog = PlaceDialog(helper.places[index], false);
-                showDialog(context: context, builder: (context) => dialog.buildDialog(context));
-              },
+    return Consumer<Controller>(
+      builder: (context, controller, _)=> ListView.builder(
+        itemCount: controller.places.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: Key(controller.places[index].id.toString()),
+            background: Container(
+              color: Theme.of(context).errorColor,
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+                size: 40,
+              ),
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.only(right: 20),
+              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
             ),
-          ),
-        );
-      },
+            direction: DismissDirection.endToStart,
+            confirmDismiss: (direction) {
+              return showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text('Are you sre?'),
+                    content: Text('Are you sre?'),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text('No')),
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text('Yes')),
+                    ],
+                  ));
+            },
+            onDismissed: (direction){
+              String strName = controller.places[index].name;
+              Provider.of<Controller>(context, listen: false).deleteMarker(controller.places[index].id!);
+              helper.deletePlace(controller.places[index]);
+
+              setState(() {
+                controller.places.removeAt(index);
+              });
+              Provider.of<Controller>(context, listen: false).getData();
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
+            },
+            child: Container(
+              height: 200,
+              margin: EdgeInsets.symmetric( vertical: 4),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  opacity: 0.7,
+                  fit: BoxFit.cover,
+                  image: FileImage(
+                    File(controller.places[index].image),
+                  ),
+                ),
+              ),
+              child: ListTile(
+                title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold),),
+                trailing: IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: (){
+                    PlaceDialog dialog = PlaceDialog(controller.places[index], false);
+                    showDialog(context: context, builder: (context) => dialog.buildDialog(context));
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
