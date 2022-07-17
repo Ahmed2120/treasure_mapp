@@ -169,7 +169,7 @@ class _MainMapState extends State<MainMap> {
           PlaceDialog dialog = PlaceDialog(place, true);
           showDialog(
               context: context,
-              builder: (context) => dialog.buildDialog(context));
+              builder: (context) => PlaceDialog(place, true));
         },
       ),
     );

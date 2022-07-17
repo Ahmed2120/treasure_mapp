@@ -41,7 +41,7 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
     );
     setCamera().then((_) {
-      _controller = CameraController(camera, ResolutionPreset.medium);
+      _controller = CameraController(camera, ResolutionPreset.max);
       _controller.initialize().then((snapshot) {
         cameraPreview = Center(
           child: CameraPreview(_controller),
@@ -62,22 +62,10 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Take Picture'),
-        actions: [
-          IconButton(
-            onPressed: ()async{
-              final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
-              (await _controller.takePicture()).saveTo(path);
-              Provider.of<Controller>(context, listen: false).setImg(path);
-              Navigator.pop(context, path);
-            },
-            icon: const Icon(Icons.camera),
-          )
-        ],
-      ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           cameraPreview,
           Positioned(
@@ -85,12 +73,13 @@ class _CameraScreenState extends State<CameraScreen> {
               onPressed: ()async{
                 final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
                 (await _controller.takePicture()).saveTo(path);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> PictureScreen(path, widget.place)));
+                Provider.of<Controller>(context, listen: false).setImg(path);
+                Navigator.pop(context, path);
               },
               icon: const Icon(Icons.camera, color: Colors.white, size: 50,),
             ),
-            bottom: 100,
-            left: 100,
+            bottom: dSize.height * 0.1,
+            left: dSize.width * 0.44,
           )
         ],
       ),

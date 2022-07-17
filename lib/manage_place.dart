@@ -93,16 +93,44 @@ class _PlaceListState extends State<PlaceList> {
                   ),
                 ),
               ),
-              child: ListTile(
-                title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold),),
-                trailing: IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: (){
-                    PlaceDialog dialog = PlaceDialog(controller.places[index], false);
-                    showDialog(context: context, builder: (context) => dialog.buildDialog(context));
-                  },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: GridTile(
+                  child: GestureDetector(
+                    // onTap: () => Navigator.of(context).pushNamed(ProductDetail.routeName, arguments: product.id),
+                    child: FadeInImage(
+                      placeholder: AssetImage('assets/images/place.jpg'),
+                      image: FileImage(
+                        File(controller.places[index].image),
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  footer: GridTileBar(
+                    backgroundColor: Colors.black45,
+                    leading: Consumer<Controller>(
+                      builder: (ctx, product, _) => IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: (){
+                              PlaceDialog dialog = PlaceDialog(controller.places[index], false);
+                              showDialog(context: context, builder: (context) => PlaceDialog(controller.places[index], false));
+                            },
+                      ),
+                    ),
+                    title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
+                  ),
                 ),
               ),
+              // child: ListTile(
+              //   title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold),),
+              //   trailing: IconButton(
+              //     icon: const Icon(Icons.edit),
+              //     onPressed: (){
+              //       PlaceDialog dialog = PlaceDialog(controller.places[index], false);
+              //       showDialog(context: context, builder: (context) => dialog.buildDialog(context));
+              //     },
+              //   ),
+              // ),
             ),
           );
         },
