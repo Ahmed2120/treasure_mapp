@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:treasure_mapp/photo_screen.dart';
 import 'controller.dart';
 import 'place_dialog.dart';
 import 'dbhelper.dart';
@@ -82,28 +83,25 @@ class _PlaceListState extends State<PlaceList> {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
             },
             child: Container(
-              height: 200,
+              height: 220,
               margin: EdgeInsets.symmetric( vertical: 4),
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  opacity: 0.7,
-                  fit: BoxFit.cover,
-                  image: FileImage(
-                    File(controller.places[index].image),
-                  ),
-                ),
+
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(20),
                 child: GridTile(
                   child: GestureDetector(
-                    // onTap: () => Navigator.of(context).pushNamed(ProductDetail.routeName, arguments: product.id),
-                    child: FadeInImage(
-                      placeholder: AssetImage('assets/images/place.jpg'),
-                      image: FileImage(
-                        File(controller.places[index].image),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhotoScreen(controller.places[index].image, controller.places[index].id!))),
+                    child: Hero(
+                      tag: controller.places[index].id!,
+                      child: FadeInImage(
+                        placeholder: AssetImage('assets/images/place.jpg'),
+                        image: FileImage(
+                          File(controller.places[index].image),
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
                     ),
                   ),
                   footer: GridTileBar(
@@ -117,7 +115,7 @@ class _PlaceListState extends State<PlaceList> {
                             },
                       ),
                     ),
-                    title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
+                    title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25), textAlign: TextAlign.center,),
                   ),
                 ),
               ),
