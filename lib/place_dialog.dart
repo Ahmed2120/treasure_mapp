@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:treasure_mapp/photo_screen.dart';
 import 'package:treasure_mapp/place.dart';
 
 import 'camera_screen.dart';
@@ -81,11 +82,13 @@ class _PlaceDialogState extends State<PlaceDialog> {
               ),
               Provider.of<Controller>(context).imagePath != null
                   ? Container(
-                  child: Image.file(File(
-                      Provider.of<Controller>(context).imagePath!)))
+                  child: displayPhoto(Provider.of<Controller>(context).imagePath!, widget.place.id!)
+              )
                   :
               (widget.place.image != '')
-                  ? Container(child: Image.file(File(widget.place.image)))
+                  ? Container(
+                  child: displayPhoto(widget.place.image, widget.place.id!)
+              )
                   : Container(),
               IconButton(
                 icon: const Icon(Icons.camera_front),
@@ -131,6 +134,17 @@ class _PlaceDialogState extends State<PlaceDialog> {
           ),
         ),
       ),
+    );
+  }
+
+  displayPhoto(String photo, int placeId){
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhotoScreen(photo, placeId))),
+        child: Hero(
+          tag: placeId,
+          child: Image.file(File(
+              photo)),
+        )
     );
   }
 }

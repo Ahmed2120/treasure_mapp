@@ -105,7 +105,7 @@ class _PlaceListState extends State<PlaceList> {
                     ),
                   ),
                   footer: GridTileBar(
-                    backgroundColor: Colors.black45,
+                    backgroundColor: Color(0xFF827773).withOpacity(0.5),
                     leading: Consumer<Controller>(
                       builder: (ctx, product, _) => IconButton(
                         icon: const Icon(Icons.edit),

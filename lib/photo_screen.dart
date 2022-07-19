@@ -38,6 +38,7 @@ class _PhotoScreenState extends State<PhotoScreen> with SingleTickerProviderStat
       body: Container(
         child: GestureDetector(
           onTap: () => setState(() => _visible = !_visible),
+          onVerticalDragUpdate: (DragUpdateDetails update)=> Navigator.of(context).pop(),
           child: PhotoView(
             imageProvider: FileImage(
               File(widget.image),

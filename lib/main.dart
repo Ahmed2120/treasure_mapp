@@ -24,7 +24,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: const Color(0xFF827773),
+        ),
+        // primarySwatch: Colors.blue,
+        primaryColor: Color(0xFF827773),
       ),
       // home: const MainMap(),
         home: const MainMap(),
@@ -46,74 +50,6 @@ class _MainMapState extends State<MainMap> {
       const CameraPosition(target: LatLng(41.9028, 12.4964), zoom: 12);
 
   bool loader = false;
-
-  //
-  // Future _getCurrentPosition() async {
-  //   bool isGeolocationAvailable = await Geolocator.isLocationServiceEnabled();
-  //
-  //   Position _position = Position(
-  //       longitude: position.target.longitude,
-  //       latitude: position.target.latitude,
-  //       timestamp: DateTime.now(),
-  //       accuracy: 1,
-  //       altitude: 0,
-  //       heading: 0,
-  //       speed: 9,
-  //       speedAccuracy: 0);
-  //   print('not available...................................');
-  //   if (isGeolocationAvailable) {
-  //     try {
-  //       _position = await Geolocator.getCurrentPosition(
-  //           desiredAccuracy: LocationAccuracy.best);
-  //     } catch (error) {
-  //       return _position;
-  //     }
-  //     print('available...................................');
-  //     return _position;
-  //   }
-  // }
-  //
-  // List<Marker> markers = [];
-  //
-  // void addMarker(
-  //   Position pos,
-  //   String markerId,
-  //   String markerTitle,
-  // ) {
-  //   final marker = Marker(
-  //       markerId: MarkerId(markerId),
-  //       position: LatLng(pos.latitude, pos.longitude),
-  //       infoWindow: InfoWindow(title: markerTitle),
-  //       anchor: const Offset(2, 3),
-  //       icon: (markerId == 'currpos')
-  //           ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
-  //           : BitmapDescriptor.defaultMarkerWithHue(
-  //               BitmapDescriptor.hueOrange));
-  //   markers.add(marker);
-  //   setState(() {
-  //     markers = markers;
-  //   });
-  // }
-  //
-  // Future _getData() async {
-  //   await helper.openDb();
-  //   List _places = await helper.getPlaces();
-  //   for (Place p in _places) {
-  //     final pos = Position(
-  //         longitude: p.lon,
-  //         latitude: p.lat,
-  //         timestamp: DateTime.now(),
-  //         accuracy: 0,
-  //         altitude: 0,
-  //         heading: 0,
-  //         speed: 0,
-  //         speedAccuracy: 0);
-  //     addMarker(pos, p.id.toString(), p.name);
-  //   }
-  //   setState(() {
-  //     markers = markers;
-  //   });
-  // }
 
   @override
   void initState() {
@@ -155,6 +91,7 @@ class _MainMapState extends State<MainMap> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF827773),
         child: const Icon(Icons.add_location),
         onPressed: () {
           int here = Provider.of<Controller>(context, listen: false).markers
