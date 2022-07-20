@@ -24,9 +24,9 @@ class Controller with ChangeNotifier {
     _imagePath = path;
     notifyListeners();
   }
-  void setImgToNull() {
+  void setImgToNull({bool isListen = true}) {
     _imagePath = null;
-    notifyListeners();
+    if(isListen)notifyListeners();
   }
 
   Future getPosition() async {

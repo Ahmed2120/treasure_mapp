@@ -31,6 +31,7 @@ class _PlaceDialogState extends State<PlaceDialog> {
   @override
   void initState() {
     super.initState();
+    Provider.of<Controller>(context, listen: false).setImgToNull(isListen: false);
 
     fillForm();
   }
