@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:treasure_mapp/ad_mob_service.dart';
 import 'package:treasure_mapp/controller.dart';
 import 'package:treasure_mapp/manage_place.dart';
 import 'package:treasure_mapp/place_dialog.dart';
@@ -9,10 +11,14 @@ import 'dbhelper.dart';
 import 'place.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider<Controller>(
-    create: (_) => Controller(),
-    child: const MyApp(),
-  ),
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
+  runApp(
+    ChangeNotifierProvider<Controller>(
+      create: (_) => Controller(),
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -24,11 +30,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: const Color(0xFF827773),
+        ),
+        // primarySwatch: Colors.blue,
+        primaryColor: Color(0xFF827773),
       ),
       // home: const MainMap(),
-        home: const MainMap(),
-
+      home: const MainMap(),
     );
   }
 }
@@ -46,84 +55,27 @@ class _MainMapState extends State<MainMap> {
       const CameraPosition(target: LatLng(41.9028, 12.4964), zoom: 12);
 
   bool loader = false;
-
-  //
-  // Future _getCurrentPosition() async {
-  //   bool isGeolocationAvailable = await Geolocator.isLocationServiceEnabled();
-  //
-  //   Position _position = Position(
-  //       longitude: position.target.longitude,
-  //       latitude: position.target.latitude,
-  //       timestamp: DateTime.now(),
-  //       accuracy: 1,
-  //       altitude: 0,
-  //       heading: 0,
-  //       speed: 9,
-  //       speedAccuracy: 0);
-  //   print('not available...................................');
-  //   if (isGeolocationAvailable) {
-  //     try {
-  //       _position = await Geolocator.getCurrentPosition(
-  //           desiredAccuracy: LocationAccuracy.best);
-  //     } catch (error) {
-  //       return _position;
-  //     }
-  //     print('available...................................');
-  //     return _position;
-  //   }
-  // }
-  //
-  // List<Marker> markers = [];
-  //
-  // void addMarker(
-  //   Position pos,
-  //   String markerId,
-  //   String markerTitle,
-  // ) {
-  //   final marker = Marker(
-  //       markerId: MarkerId(markerId),
-  //       position: LatLng(pos.latitude, pos.longitude),
-  //       infoWindow: InfoWindow(title: markerTitle),
-  //       anchor: const Offset(2, 3),
-  //       icon: (markerId == 'currpos')
-  //           ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
-  //           : BitmapDescriptor.defaultMarkerWithHue(
-  //               BitmapDescriptor.hueOrange));
-  //   markers.add(marker);
-  //   setState(() {
-  //     markers = markers;
-  //   });
-  // }
-  //
-  // Future _getData() async {
-  //   await helper.openDb();
-  //   List _places = await helper.getPlaces();
-  //   for (Place p in _places) {
-  //     final pos = Position(
-  //         longitude: p.lon,
-  //         latitude: p.lat,
-  //         timestamp: DateTime.now(),
-  //         accuracy: 0,
-  //         altitude: 0,
-  //         heading: 0,
-  //         speed: 0,
-  //         speedAccuracy: 0);
-  //     addMarker(pos, p.id.toString(), p.name);
-  //   }
-  //   setState(() {
-  //     markers = markers;
-  //   });
-  // }
+  BannerAd? _bannerAd;
 
   @override
   void initState() {
+    super.initState();
+    getPosition();
+    Provider.of<Controller>(context, listen: false).getData();
+
+    _createBannerAd();
+  }
+
+  void getPosition() {
     helper = DbHelper();
     setState(() {
       loader = true;
     });
     Provider.of<Controller>(context, listen: false).getPosition().then((pos) {
-      Provider.of<Controller>(context, listen: false).addMarker(pos, 'currpos', 'you are here');
-      position = CameraPosition(target: LatLng(pos.latitude, pos.longitude), zoom: 12);
+      Provider.of<Controller>(context, listen: false)
+          .addMarker(pos, 'currpos', 'you are here');
+      position =
+          CameraPosition(target: LatLng(pos.latitude, pos.longitude), zoom: 12);
       setState(() {
         loader = false;
       });
@@ -131,9 +83,15 @@ class _MainMapState extends State<MainMap> {
     }).catchError((error) {
       print(error.toString());
     });
-    //helper.insertData();
-    Provider.of<Controller>(context, listen: false).getData();
-    super.initState();
+  }
+
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: AdMobService.bannerAdUnitId!,
+        listener: AdMobService.bannerListener,
+        request: const AdRequest())
+      ..load();
   }
 
   @override
@@ -142,36 +100,57 @@ class _MainMapState extends State<MainMap> {
       appBar: AppBar(
         title: const Text('The Treasure Map'),
         actions: [
-          IconButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> ManagePlaces()));
-          },
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ManagePlaces()));
+              },
               icon: const Icon(Icons.list))
         ],
       ),
-      body: loader ? Center(child: CircularProgressIndicator()) : Container(
-        child: GoogleMap(
-          initialCameraPosition: position,
-          markers: Set<Marker>.of(Provider.of<Controller>(context).markers),
+      body: loader
+          ? Center(child: CircularProgressIndicator())
+          : Container(
+              child: GoogleMap(
+                initialCameraPosition: position,
+                markers:
+                    Set<Marker>.of(Provider.of<Controller>(context).markers),
+              ),
+            ),
+      floatingActionButton: Align(
+        alignment: Alignment(0.7, 1),
+        child: FloatingActionButton(
+          backgroundColor: Color(0xFF827773),
+          child: const Icon(Icons.add_location),
+          onPressed: () {
+            int here = Provider.of<Controller>(context, listen: false)
+                .markers
+                .indexWhere((p) => p.markerId == const MarkerId('currpos'));
+            Place place;
+            if (here == -1) {
+              place = Place('name', 0, 0, 'image');
+            } else {
+              LatLng pos = Provider.of<Controller>(context, listen: false)
+                  .markers[here]
+                  .position;
+              place = Place('', pos.latitude, pos.longitude, '');
+            }
+            PlaceDialog dialog = PlaceDialog(place, true);
+            showDialog(
+                context: context,
+                builder: (context) => PlaceDialog(place, true));
+          },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add_location),
-        onPressed: () {
-          int here = Provider.of<Controller>(context, listen: false).markers
-              .indexWhere((p) => p.markerId == const MarkerId('currpos'));
-          Place place;
-          if (here == -1) {
-            place = Place('name', 0, 0, 'image');
-          } else {
-            LatLng pos = Provider.of<Controller>(context, listen: false).markers[here].position;
-            place = Place('', pos.latitude, pos.longitude, '');
-          }
-          PlaceDialog dialog = PlaceDialog(place, true);
-          showDialog(
-              context: context,
-              builder: (context) => dialog.buildDialog(context));
-        },
-      ),
+      bottomNavigationBar: _bannerAd == null
+          ? Container(height: 0,)
+          : Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              height: 52,
+              child: AdWidget(
+                ad: _bannerAd!,
+              ),
+            ),
     );
   }
 }

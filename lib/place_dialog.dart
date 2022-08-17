@@ -3,28 +3,50 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
-import 'package:treasure_mapp/camera_screen.dart';
+import 'package:treasure_mapp/photo_screen.dart';
+import 'package:treasure_mapp/place.dart';
+
+import 'camera_screen.dart';
 import 'controller.dart';
-import 'place.dart';
 import 'dbhelper.dart';
 
-class PlaceDialog {
+class PlaceDialog extends StatefulWidget {
+
+  final bool isNew;
+  final Place place;
+  const PlaceDialog(this.place, this.isNew, {Key? key}) : super(key: key);
+
+  @override
+  State<PlaceDialog> createState() => _PlaceDialogState();
+}
+
+class _PlaceDialogState extends State<PlaceDialog> {
+
   final txtName = TextEditingController();
   final txtLat = TextEditingController();
   final txtLon = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey();
   String imgCaptured = '';
+  DbHelper helper = DbHelper();
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<Controller>(context, listen: false).setImgToNull(isListen: false);
 
-  final bool isNew;
-  final Place place;
+    fillForm();
+  }
 
-  PlaceDialog(this.place, this.isNew);
 
-  Widget buildDialog(BuildContext context) {
-    DbHelper helper = DbHelper();
-    txtName.text = place.name;
-    txtLat.text = place.lat.toString();
-    txtLon.text = place.lon.toString();
+  fillForm(){
+    txtName.text = widget.place.name;
+    txtLat.text = widget.place.lat.toString();
+    txtLon.text = widget.place.lon.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+
     return AlertDialog(
       title: const Text('Places'),
       content: SingleChildScrollView(
@@ -60,20 +82,24 @@ class PlaceDialog {
                 },
               ),
               Provider.of<Controller>(context).imagePath != null
-              ? Container(
+                  ? Container(
                   child: Image.file(File(
-                      Provider.of<Controller>(context).imagePath!)))
-              :
-              (place.image != '')
-                      ? Container(child: Image.file(File(place.image)))
-                      : Container(),
+                      Provider.of<Controller>(context).imagePath!)),
+              )
+                  :
+              (widget.place.image != '')
+                  ? Container(
+                  child: Image.file(File(
+                      widget.place.image))
+              )
+                  : Container(),
               IconButton(
                 icon: const Icon(Icons.camera_front),
                 onPressed: () async {
                   final path = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CameraScreen(place)));
+                          builder: (context) => CameraScreen(widget.place)));
                   imgCaptured = path;
                 },
               ),
@@ -85,16 +111,16 @@ class PlaceDialog {
                     }
                     FocusScope.of(context).unfocus();
                     _formKey.currentState!.save();
-                    place.name = txtName.text;
-                    place.lat = double.tryParse(txtLat.text)!;
-                    place.lon = double.tryParse(txtLon.text)!;
-                    place.image = imgCaptured == '' ? place.image : imgCaptured;
-                    isNew
-                        ? await helper.insertPlace(place)
-                        : await helper.update(place);
+                    widget.place.name = txtName.text;
+                    widget.place.lat = double.tryParse(txtLat.text)!;
+                    widget.place.lon = double.tryParse(txtLon.text)!;
+                    widget.place.image = imgCaptured == '' ? widget.place.image : imgCaptured;
+                    widget.isNew
+                        ? await helper.insertPlace(widget.place)
+                        : await helper.update(widget.place);
                     final pos = Position(
-                        longitude: place.lon,
-                        latitude: place.lat,
+                        longitude: widget.place.lon,
+                        latitude: widget.place.lat,
                         timestamp: DateTime.now(),
                         accuracy: 0,
                         altitude: 0,
@@ -111,6 +137,17 @@ class PlaceDialog {
           ),
         ),
       ),
+    );
+  }
+
+  displayPhoto(String photo, int placeId){
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhotoScreen(photo, placeId))),
+        child: Hero(
+          tag: placeId,
+          child: Image.file(File(
+              photo)),
+        )
     );
   }
 }
