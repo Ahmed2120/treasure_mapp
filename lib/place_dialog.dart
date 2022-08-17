@@ -83,12 +83,14 @@ class _PlaceDialogState extends State<PlaceDialog> {
               ),
               Provider.of<Controller>(context).imagePath != null
                   ? Container(
-                  child: displayPhoto(Provider.of<Controller>(context).imagePath!, widget.place.id!)
+                  child: Image.file(File(
+                      Provider.of<Controller>(context).imagePath!)),
               )
                   :
               (widget.place.image != '')
                   ? Container(
-                  child: displayPhoto(widget.place.image, widget.place.id!)
+                  child: Image.file(File(
+                      widget.place.image))
               )
                   : Container(),
               IconButton(

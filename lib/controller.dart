@@ -100,9 +100,6 @@ class Controller with ChangeNotifier {
           speedAccuracy: 0);
       addMarker(pos, p.id.toString(), p.name);
     }
-    for (var i = 0; i < markers.length; i++) {
-      print('markers----------------${markers[i].markerId}:');
-    }
     notifyListeners();
   }
 
@@ -110,8 +107,6 @@ class Controller with ChangeNotifier {
     int mark = markers.indexWhere((element) =>
     element.markerId == MarkerId(id.toString()));
     markers.removeAt(mark);
-    print('deleted----------------$id:');
-    print('deleted----------------$markers:');
     notifyListeners();
   }
 }

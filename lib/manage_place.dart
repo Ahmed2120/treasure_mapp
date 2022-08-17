@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:treasure_mapp/photo_screen.dart';
+import 'package:treasure_mapp/place.dart';
 import 'controller.dart';
 import 'place_dialog.dart';
 import 'dbhelper.dart';
+import 'package:geocoding/geocoding.dart';
 
 
 class ManagePlaces extends StatelessWidget {
@@ -17,7 +19,7 @@ class ManagePlaces extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Manage Places'),
       ),
-      body: PlaceList(),
+      body: const PlaceList(),
     );
   }
 }
@@ -34,39 +36,49 @@ class _PlaceListState extends State<PlaceList> {
   DbHelper helper = DbHelper();
 
 
+
+  getCity(Place place) async{
+    final address = await placemarkFromCoordinates(place.lat, place.lon);
+    return address.first.country;
+  }
   @override
   Widget build(BuildContext context) {
     return Consumer<Controller>(
-      builder: (context, controller, _)=> ListView.builder(
+      builder: (context, controller, _)=>
+          controller.places.isEmpty ?
+              Center(
+                child: Text('No Places Found', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: const Color(0xFF827773).withOpacity(0.7))),
+              ):
+          ListView.builder(
         itemCount: controller.places.length,
         itemBuilder: (context, index) {
           return Dismissible(
             key: Key(controller.places[index].id.toString()),
             background: Container(
               color: Theme.of(context).errorColor,
-              child: Icon(
+              child: const Icon(
                 Icons.delete,
                 color: Colors.white,
                 size: 40,
               ),
               alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(right: 20),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+              padding: const EdgeInsets.only(right: 20),
+              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
             ),
             direction: DismissDirection.endToStart,
             confirmDismiss: (direction) {
               return showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: Text('Are you sre?'),
-                    content: Text('Are you sre?'),
+                    title: const Text('Are you sre?'),
+                    content: const Text('You want to delete this place'),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          child: Text('No')),
+                          child: const Text('No')),
                       TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: Text('Yes')),
+                          child: const Text('Yes')),
                     ],
                   ));
             },
@@ -80,12 +92,12 @@ class _PlaceListState extends State<PlaceList> {
               });
               Provider.of<Controller>(context, listen: false).getData();
               ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted", textAlign: TextAlign.center,), duration: Duration(milliseconds: 500),));
             },
             child: Container(
               height: 220,
-              margin: EdgeInsets.symmetric( vertical: 4),
-              decoration: BoxDecoration(
+              margin: const EdgeInsets.symmetric( vertical: 4 ,horizontal: 6),
+              decoration: const BoxDecoration(
 
               ),
               child: ClipRRect(
@@ -96,39 +108,28 @@ class _PlaceListState extends State<PlaceList> {
                     child: Hero(
                       tag: controller.places[index].id!,
                       child: FadeInImage(
-                        placeholder: AssetImage('assets/images/place.jpg'),
+                        placeholder: const AssetImage('assets/images/place.jpg'),
                         image: FileImage(
                           File(controller.places[index].image),
                         ),
                         fit: BoxFit.cover,
-                      ),
+                      )
                     ),
                   ),
                   footer: GridTileBar(
-                    backgroundColor: Color(0xFF827773).withOpacity(0.5),
+                    backgroundColor: const Color(0xFF827773).withOpacity(0.5),
                     leading: Consumer<Controller>(
                       builder: (ctx, product, _) => IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: (){
-                              PlaceDialog dialog = PlaceDialog(controller.places[index], false);
                               showDialog(context: context, builder: (context) => PlaceDialog(controller.places[index], false));
                             },
                       ),
                     ),
-                    title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25), textAlign: TextAlign.center,),
+                    title: Text(controller.places[index].name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25), textAlign: TextAlign.center,),
                   ),
                 ),
               ),
-              // child: ListTile(
-              //   title: Text(controller.places[index].name, style: TextStyle(fontWeight: FontWeight.bold),),
-              //   trailing: IconButton(
-              //     icon: const Icon(Icons.edit),
-              //     onPressed: (){
-              //       PlaceDialog dialog = PlaceDialog(controller.places[index], false);
-              //       showDialog(context: context, builder: (context) => dialog.buildDialog(context));
-              //     },
-              //   ),
-              // ),
             ),
           );
         },
