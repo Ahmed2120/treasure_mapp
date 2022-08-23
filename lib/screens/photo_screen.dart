@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:treasure_mapp/sliding_appbar.dart';
+import 'package:treasure_mapp/widgets/sliding_appbar.dart';
 
 class PhotoScreen extends StatefulWidget {
   final String image;

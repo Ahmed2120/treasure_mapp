@@ -33,7 +33,7 @@ dependencies:
   geolocator:
   sqflite:
   path:
-  camera:
+  camera: ^0.9.7
   path_provider:
   provider:
   photo_view: ^0.14.0
@@ -58,6 +58,12 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
+  flutter_launcher_icons: "^0.10.0"
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

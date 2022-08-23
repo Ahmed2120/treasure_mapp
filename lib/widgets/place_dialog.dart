@@ -1,14 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
-import 'package:treasure_mapp/photo_screen.dart';
-import 'package:treasure_mapp/place.dart';
+import 'package:treasure_mapp/screens/photo_screen.dart';
+import 'package:treasure_mapp/model/place.dart';
 
-import 'camera_screen.dart';
-import 'controller.dart';
-import 'dbhelper.dart';
+import '../screens/camera_screen.dart';
+import '../services/controller.dart';
+import '../services/dbhelper.dart';
 
 class PlaceDialog extends StatefulWidget {
 
@@ -115,6 +116,7 @@ class _PlaceDialogState extends State<PlaceDialog> {
                     widget.place.lat = double.tryParse(txtLat.text)!;
                     widget.place.lon = double.tryParse(txtLon.text)!;
                     widget.place.image = imgCaptured == '' ? widget.place.image : imgCaptured;
+                    widget.place.city = (await getCity(widget.place))!;
                     widget.isNew
                         ? await helper.insertPlace(widget.place)
                         : await helper.update(widget.place);
@@ -138,6 +140,11 @@ class _PlaceDialogState extends State<PlaceDialog> {
         ),
       ),
     );
+  }
+
+  Future<String?>? getCity(Place place) async{
+    final address = await placemarkFromCoordinates(place.lat, place.lon);
+    return address.first.administrativeArea;
   }
 
   displayPhoto(String photo, int placeId){

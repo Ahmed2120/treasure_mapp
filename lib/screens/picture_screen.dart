@@ -2,9 +2,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:treasure_mapp/dbhelper.dart';
+import 'package:treasure_mapp/services/dbhelper.dart';
 import 'package:treasure_mapp/main.dart';
-import 'package:treasure_mapp/place.dart';
+import 'package:treasure_mapp/model/place.dart';
+import 'package:treasure_mapp/screens/main_map_screen.dart';
 
 class PictureScreen extends StatelessWidget {
   final String imagePath;

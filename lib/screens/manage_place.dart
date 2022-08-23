@@ -1,17 +1,45 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'package:treasure_mapp/photo_screen.dart';
-import 'package:treasure_mapp/place.dart';
-import 'controller.dart';
-import 'place_dialog.dart';
-import 'dbhelper.dart';
+import 'package:treasure_mapp/screens/photo_screen.dart';
+import 'package:treasure_mapp/model/place.dart';
+import '../services/ad_mob_service.dart';
+import '../services/controller.dart';
+import '../widgets/place_dialog.dart';
+import '../services/dbhelper.dart';
 import 'package:geocoding/geocoding.dart';
 
+import '../widgets/place_item.dart';
 
-class ManagePlaces extends StatelessWidget {
+
+class ManagePlaces extends StatefulWidget {
   const ManagePlaces({Key? key}) : super(key: key);
+
+  @override
+  State<ManagePlaces> createState() => _ManagePlacesState();
+}
+
+class _ManagePlacesState extends State<ManagePlaces> {
+
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _createBannerAd();
+  }
+
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: AdMobService.bannerAdUnitId!,
+        listener: AdMobService.bannerListener,
+        request: const AdRequest())
+      ..load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +48,15 @@ class ManagePlaces extends StatelessWidget {
         title: const Text('Manage Places'),
       ),
       body: const PlaceList(),
+      bottomNavigationBar: _bannerAd == null
+          ? Container(height: 0,)
+          : Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        height: 52,
+        child: AdWidget(
+          ad: _bannerAd!,
+        ),
+      ),
     );
   }
 }
@@ -39,7 +76,7 @@ class _PlaceListState extends State<PlaceList> {
 
   getCity(Place place) async{
     final address = await placemarkFromCoordinates(place.lat, place.lon);
-    return address.first.country;
+    return address.first.administrativeArea;
   }
   @override
   Widget build(BuildContext context) {
@@ -82,7 +119,8 @@ class _PlaceListState extends State<PlaceList> {
                     ],
                   ));
             },
-            onDismissed: (direction){
+            onDismissed: (direction)async{
+              print('city: ${await getCity(controller.places[index])}');
               String strName = controller.places[index].name;
               Provider.of<Controller>(context, listen: false).deleteMarker(controller.places[index].id!);
               helper.deletePlace(controller.places[index]);
@@ -94,43 +132,7 @@ class _PlaceListState extends State<PlaceList> {
               ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted", textAlign: TextAlign.center,), duration: Duration(milliseconds: 500),));
             },
-            child: Container(
-              height: 220,
-              margin: const EdgeInsets.symmetric( vertical: 4 ,horizontal: 6),
-              decoration: const BoxDecoration(
-
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: GridTile(
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PhotoScreen(controller.places[index].image, controller.places[index].id!))),
-                    child: Hero(
-                      tag: controller.places[index].id!,
-                      child: FadeInImage(
-                        placeholder: const AssetImage('assets/images/place.jpg'),
-                        image: FileImage(
-                          File(controller.places[index].image),
-                        ),
-                        fit: BoxFit.cover,
-                      )
-                    ),
-                  ),
-                  footer: GridTileBar(
-                    backgroundColor: const Color(0xFF827773).withOpacity(0.5),
-                    leading: Consumer<Controller>(
-                      builder: (ctx, product, _) => IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: (){
-                              showDialog(context: context, builder: (context) => PlaceDialog(controller.places[index], false));
-                            },
-                      ),
-                    ),
-                    title: Text(controller.places[index].name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25), textAlign: TextAlign.center,),
-                  ),
-                ),
-              ),
-            ),
+            child: PlaceItem(place: controller.places[index],),
           );
         },
       ),
