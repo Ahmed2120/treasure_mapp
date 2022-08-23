@@ -3,9 +3,9 @@ import 'package:camera/camera.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:treasure_mapp/controller.dart';
-import 'package:treasure_mapp/picture_screen.dart';
-import 'place.dart';
+import 'package:treasure_mapp/services/controller.dart';
+import 'package:treasure_mapp/screens/picture_screen.dart';
+import '../model/place.dart';
 
 class CameraScreen extends StatefulWidget {
   final Place place;

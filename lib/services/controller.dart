@@ -1,10 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:treasure_mapp/place.dart';
+import 'package:treasure_mapp/model/place.dart';
 
 import 'dbhelper.dart';
 
@@ -63,6 +64,11 @@ class Controller with ChangeNotifier {
       return _position;
     }
     notifyListeners();
+  }
+
+  getCity(Place place) async{
+    final address = await placemarkFromCoordinates(place.lat, place.lon);
+    return address.first.administrativeArea;
   }
 
   List<Marker> markers = [];

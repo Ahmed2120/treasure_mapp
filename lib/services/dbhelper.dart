@@ -1,6 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:treasure_mapp/place.dart';
+import 'package:treasure_mapp/model/place.dart';
 
 class DbHelper {
 
@@ -18,7 +18,7 @@ class DbHelper {
     db = await openDatabase(join(await getDatabasesPath(), 'mapp.db'),
         onCreate: (database, version) {
       database.execute(
-          'CREATE TABLE places (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat DOUBLE, lon DOUBLE, image TEXT)');
+          'CREATE TABLE places (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat DOUBLE, lon DOUBLE, image TEXT, city TEXT)');
     }, version: version);
     return db;
   }
