@@ -1,4 +1,4 @@
-package com.example.treasure_mapp
+package ahmad.ashraf.treasure_map
 
 import io.flutter.embedding.android.FlutterActivity
 
