@@ -7,6 +7,7 @@ import 'package:treasure_mapp/screens/photo_screen.dart';
 import 'package:treasure_mapp/model/place.dart';
 import '../services/ad_mob_service.dart';
 import '../services/controller.dart';
+import '../widgets/msg_text.dart';
 import '../widgets/place_dialog.dart';
 import '../services/dbhelper.dart';
 import 'package:geocoding/geocoding.dart';
@@ -83,9 +84,7 @@ class _PlaceListState extends State<PlaceList> {
     return Consumer<Controller>(
       builder: (context, controller, _)=>
           controller.places.isEmpty ?
-              Center(
-                child: Text('No Places Found', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: const Color(0xFF827773).withOpacity(0.7))),
-              ):
+              const MsgText(msg: 'No Places Found'):
           ListView.builder(
         itemCount: controller.places.length,
         itemBuilder: (context, index) {
@@ -130,7 +129,7 @@ class _PlaceListState extends State<PlaceList> {
               });
               Provider.of<Controller>(context, listen: false).getData();
               ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted", textAlign: TextAlign.center,), duration: Duration(milliseconds: 500),));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted", textAlign: TextAlign.center,), duration: const Duration(milliseconds: 500),));
             },
             child: PlaceItem(place: controller.places[index],),
           );
@@ -139,4 +138,3 @@ class _PlaceListState extends State<PlaceList> {
     );
   }
 }
-
